@@ -48,6 +48,9 @@ body {
 }
 
 
+.day {
+  background-color: rgb(26, 133, 175);
+}
 
 .night {
   background-color: skyblue;

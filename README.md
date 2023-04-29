@@ -9,5 +9,5 @@ In the project directory, you can run:
 1. Nextjs
 2. React js
 3. Tailwindcss
-4. material UI
-5. Axios\
+4. Material UI
+5. Axios

@@ -38,11 +38,9 @@ import { WeatherBanner } from "@/components/WeatherBanner";
   });
 
   useEffect(() => {
-    if (dateTimeState.date && dateTimeState.time) {
+    if (dateTimeState.date !== 'Invalid Date' && dateTimeState.time !== 'Invalid Date') {
       callTrafficAPI();
-      if (!Boolean(weatherState.locations.length)) {
-        callWeatherAPI();
-      }
+      callWeatherAPI();
     }
   }, [dateTimeState.date, dateTimeState.time])
 
@@ -74,11 +72,6 @@ import { WeatherBanner } from "@/components/WeatherBanner";
         locations: locationList 
       });
     }
-  }
-  
-  const getWeather = async () => {
-    const response = await fetch("https://api.data.gov.sg/v1/transport/traffic-images?date_time=2021-03-20T09:10:00");
-    console.log( await response.json());
   }
   
   const handleDateTimeChange = (value: string, fieldName: string) => {
@@ -141,26 +134,30 @@ import { WeatherBanner } from "@/components/WeatherBanner";
             <TimePickerComponent value={time} onChange={handleDateTimeChange} />
           </article>
 
-          {Boolean(locations.length) &&
-            <article className='mt-6'> 
-              <SelectWithSearch showValue={Boolean(name)} locations={locations} onLocationClick={handleLocationClick} />   
-            </article>
-          }
+          {![date, time].includes('Invalid Date') &&
+            <>
+              {Boolean(locations.length) &&
+                <article className='mt-6'> 
+                  <SelectWithSearch showValue={Boolean(name)} locations={locations} onLocationClick={handleLocationClick} />   
+                </article>
+              }
 
-          {Boolean(name) &&
-            <article className='my-6'>
-              <WeatherBanner locationDetails={selectedLocationDetails} />  
-            </article>
-          }
-          
-          {Boolean(trafficImageDetails.image) &&
-            <Image
-              src={trafficImageDetails.image}
-              alt={trafficImageDetails.camera_id}
-              width={Number(trafficImageDetails.image_metadata.width)}
-              height={Number(trafficImageDetails.image_metadata.height)}
-              priority
-            />
+              {Boolean(name) &&
+                <article className='my-6'>
+                  <WeatherBanner locationDetails={selectedLocationDetails} />  
+                </article>
+              }
+              
+              {Boolean(trafficImageDetails.image) &&
+                <Image
+                  src={trafficImageDetails.image}
+                  alt={trafficImageDetails.camera_id}
+                  width={Number(trafficImageDetails.image_metadata.width)}
+                  height={Number(trafficImageDetails.image_metadata.height)}
+                  priority
+                />
+              }
+            </>
           }
         </Card>
       </main>
