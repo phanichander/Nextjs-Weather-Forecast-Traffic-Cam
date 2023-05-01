@@ -19,7 +19,7 @@ const SelectWithSearch = ({ showValue, locations, onLocationClick } : Props) => 
   }, [locations]);
 
   const handleChange = (event: any) => {
-    const textContent = event ? event.target.textContent : '';
+    const textContent = event ? event.target.value : '';
     
     if (textContent) {
       const selectedLocation = locations.find((location: locationDetails) => (location.name) === textContent); 
@@ -34,7 +34,7 @@ const SelectWithSearch = ({ showValue, locations, onLocationClick } : Props) => 
  return (
     <Autocomplete
       value={showValue ? value as any : ""}
-      onInputChange={handleChange}
+      onSelect={handleChange}
       disablePortal
       className="location-details"
       options={selectOptions}
