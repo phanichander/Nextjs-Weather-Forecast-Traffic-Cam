@@ -11,6 +11,7 @@ import { WEATHER_FORECASE_API } from "@/constants";
 import { DATE_TIME_TYPE, cameraDetails as cameraDetailsType, locationDetails  } from "@/constants/types";
 import { getClosestGeoLocations, getLocationList } from "@/utils";
 import { WeatherBanner } from "@/components/WeatherBanner";
+import { PAGE_TITLE } from "@/constants/displayMessage";
 
  const WeatherPage = () => {
   const [dateTimeState, setDateTimeState] = useState({
@@ -36,6 +37,7 @@ import { WeatherBanner } from "@/components/WeatherBanner";
       location: { latitude: 0, longitude: 0 }
     }
   });
+  const [error, setError] = useState("");
 
   useEffect(() => {
     if (dateTimeState.date !== 'Invalid Date' && dateTimeState.time !== 'Invalid Date') {
@@ -45,32 +47,45 @@ import { WeatherBanner } from "@/components/WeatherBanner";
   }, [dateTimeState.date, dateTimeState.time])
 
   const callTrafficAPI = async () => {
-    const TRAFFIC_IMAGES_API = `https://api.data.gov.sg/v1/transport/traffic-images?date_time=${dayjs(`${dateTimeState.date} ${dateTimeState.time}`).format(DATE_TIME_TYPE.DATE_TIME_FORMAT)}`
-    const response: any  = await (await fetch(TRAFFIC_IMAGES_API)).json();
+    try {
+      const TRAFFIC_IMAGES_API = `https://api.data.gov.sg/v1/transport/traffic-images?date_time=${dayjs(`${dateTimeState.date} ${dateTimeState.time}`).format(DATE_TIME_TYPE.DATE_TIME_FORMAT)}`
+      const response: any  = await (await fetch(TRAFFIC_IMAGES_API)).json();
 
-    const cameraDetails = response.items[0].cameras;
-    let geoLocationsList: any = []; 
+      const cameraDetails = response.items[0].cameras;
+      let geoLocationsList: any = []; 
 
-    cameraDetails.map((camera: any) => {
-      geoLocationsList.push(camera.location)
-    });
-
-    setTrafficState({
-      cameras: cameraDetails,
-      geoLocations: geoLocationsList
-    });
+      cameraDetails.map((camera: any) => {
+        geoLocationsList.push(camera.location)
+      });
+      
+      setError("");
+      setTrafficState({
+        cameras: cameraDetails,
+        geoLocations: geoLocationsList
+      });
+    }
+    catch(error) {
+      setError("API Error");
+    }
   }
 
   const callWeatherAPI = async () => {
     const WEATHER_API = `https://api.data.gov.sg/v1/environment/2-hour-weather-forecast?date_time=${dayjs(`${dateTimeState.date} ${dateTimeState.time}`).format(DATE_TIME_TYPE.DATE_TIME_FORMAT)}`;
-    const response: any  = await (await fetch(WEATHER_API)).json();
-    const locationList: any = await getLocationList(response);
-     
-    if (Boolean(locationList.length)) {
-      setWeatherState({
-        ...weatherState, 
-        locations: locationList 
-      });
+   
+    try {
+      const response: any  = await (await fetch(WEATHER_API)).json();
+      const locationList: any = await getLocationList(response);
+      
+      if (Boolean(locationList.length)) {
+        setError("");
+        setWeatherState({
+          ...weatherState, 
+          locations: locationList 
+        });
+      }
+    }
+    catch(error) {
+      setError("API Error");
     }
   }
   
@@ -123,7 +138,7 @@ import { WeatherBanner } from "@/components/WeatherBanner";
   return (
     <>
       <Head>
-        <title>Weather Forecast & Traffic CamWebsite</title>
+        <title>{PAGE_TITLE}</title>
         <meta name="climate" content="Weather & Traffic Information" />
       </Head>
 
@@ -134,7 +149,7 @@ import { WeatherBanner } from "@/components/WeatherBanner";
             <TimePickerComponent value={time} onChange={handleDateTimeChange} />
           </article>
 
-          {![date, time].includes('Invalid Date') &&
+          {(![date, time].includes('Invalid Date') || Boolean(error)) &&
             <>
               {Boolean(locations.length) &&
                 <article className='mt-6'> 
